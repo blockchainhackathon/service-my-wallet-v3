@@ -43,7 +43,10 @@ merchantAPI.all('/:guid/address_balance', required('address'), function (req, re
 function handleResponse(apiAction, res) {
   apiAction
     .then(function (data) { res.status(200).json(data); })
-    .catch(function (err) { res.status(500).json({ error: ecodes[err] }); })
+    .catch(function (e) {
+      var err = ecodes[e] || ecodes['ERR_UNEXPECT'];
+      res.status(500).json({ error: err });
+    });
 }
 
 function start(options) {

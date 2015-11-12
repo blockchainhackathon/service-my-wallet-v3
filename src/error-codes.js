@@ -15,5 +15,6 @@ module.exports = {
   ERR_UNKNOWN   : 'Uknown method',
   // Custom error messages
   ERR_PARAM     : 'Missing one or more query parameters',
-  ERR_HISTORY   : 'Experienced an error while fetching wallet history'
+  ERR_HISTORY   : 'Experienced an error while fetching wallet history',
+  ERR_UNEXPECT  : 'Unexpected error, please try again'
 };
