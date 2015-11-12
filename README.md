@@ -76,6 +76,8 @@ Query Parameters:
 
   * `address` - address to fetch balance for (required)
 
+Note: unlike the hosted API, there is no option of a `confirmations` parameter for specifying minimum confirmations.
+
 ### List Addresses
 
 Endpoint: `/:guid/list`
