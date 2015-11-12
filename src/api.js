@@ -7,16 +7,18 @@ module.exports = {
   login             : login,
   getBalance        : getBalance,
   listAddresses     : listAddresses,
-  getAddressBalance : getAddressBalance
+  getAddressBalance : getAddressBalance,
+  makePayment       : makePayment
 };
 
 function login(guid, options) {
   var deferred = q.defer()
     , needs2FA  = deferred.reject.bind(null, 'ERR_2FA')
-    , error     = deferred.reject.bind(null, 'ERR_SAVING');
+    , error     = deferred.reject.bind(null, 'ERR_DECRYPT');
   function success() {
     var resolve = deferred.resolve.bind(null, { guid: guid, success: true })
       , reject  = deferred.reject.bind(null, 'ERR_HISTORY');
+    bc.WalletStore.setAPICode(options.api_code);
     bc.MyWallet.wallet.getHistory().then(resolve).catch(reject);
   }
   function tryLogin() {
@@ -47,6 +49,25 @@ function getAddressBalance(guid, options) {
   return getWallet().then(function (wallet) {
     var addr = wallet.key(options.address);
     return { balance: addr.balance, address: addr.address, total_received: addr.totalReceived };
+  });
+}
+
+function makePayment(guid, options) {
+  return getWallet().then(function (wallet) {
+    var payment = new bc.Payment()
+      .to(options.to)
+      .amount(options.amount)
+      .from(options.from);
+
+    var password = options.second_password;
+    if (options.fee) payment.fee(options.fee);
+    if (options.note) payment.note(options.note);
+
+    return payment.build().sign(password).publish().payment
+      .catch(function (e) {
+        console.log(e);
+        throw 'ERR_PUSHTX';
+      });
   });
 }
 

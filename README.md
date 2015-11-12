@@ -49,6 +49,21 @@ Query Parameters:
   * `password` - main wallet password (required)
   * `api_code` - blockchain.info wallet api code
 
+### Make Payment
+
+Endpoint: `/:guid/payment`
+
+Query Parameters:
+
+  * `to` - bitcoin address to send to (required)
+  * `from` - bitcoin address to send from (required)
+  * `amount` - amount **IN SATOSHI** to send (required)
+  * `second_password` - second wallet password (required, only if second password is enabled)
+  * `fee` - specify transaction fee **IN SATOSHI** (optional, otherwise fee is computed)
+  * `note` - public note to include with the transaction (optional, limit 255 characters)
+
+Note: the `from` field is not required on the hosted API, in this service it is required.
+
 ### Fetch Wallet Balance
 
 Endpoint: `/:guid/balance`

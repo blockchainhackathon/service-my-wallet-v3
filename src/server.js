@@ -39,11 +39,18 @@ merchantAPI.all('/:guid/address_balance', required('address'), function (req, re
   handleResponse(apiAction, res);
 });
 
+var reqsPayment = ['to', 'amount', 'from'];
+merchantAPI.all('/:guid/payment', required(reqsPayment), function (req, res) {
+  var apiAction = api.makePayment(req.params.guid, req.bc_options);
+  handleResponse(apiAction, res);
+});
+
 // Helper functions
 function handleResponse(apiAction, res) {
   apiAction
     .then(function (data) { res.status(200).json(data); })
     .catch(function (e) {
+      console.log(e);
       var err = ecodes[e] || ecodes['ERR_UNEXPECT'];
       res.status(500).json({ error: err });
     });
@@ -64,15 +71,26 @@ function parseOptions() {
       password  : _q.password || _b.password,
       api_code  : _q.api_code || _b.api_code,
       address   : _q.address  || _b.address,
+      to        : _q.to       || _b.to,
+      from      : _q.from     || _b.from,
+      note      : _q.note     || _b.note,
+      second_password : _q.second_password || _b.second_password,
+      amount    : parseInt(_q.amount  || _b.amount),
+      fee       : parseInt(_q.fee     || _b.fee),
     };
     next();
   };
 }
 
-function required(prop) {
+function required(props) {
+  props = props instanceof Array ? props : [props];
   return function (req, res, next) {
-    var propExists  = req.bc_options[prop] != null
-      , rejection   = q.reject('ERR_PARAM');
-    propExists ? next() : handleResponse(rejection, res);
+    var rejection = q.reject('ERR_PARAM');
+    for (var i = 0; i < props.length; i++) {
+      var prop = props[i];
+      var propExists = req.bc_options[prop] != null;
+      if (!propExists) return handleResponse(rejection, res);
+    }
+    next();
   };
 }
