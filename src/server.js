@@ -39,6 +39,12 @@ merchantAPI.all('/:guid/address_balance', required('address'), function (req, re
   handleResponse(apiAction, res);
 });
 
+var reqsSendMany = ['recipients', 'from'];
+merchantAPI.all('/:guid/sendmany', required(reqsSendMany), function (req, res) {
+  var apiAction = api.sendMany(req.params.guid, req.bc_options);
+  handleResponse(apiAction, res);
+});
+
 var reqsPayment = ['to', 'amount', 'from'];
 merchantAPI.all('/:guid/payment', required(reqsPayment), function (req, res) {
   var apiAction = api.makePayment(req.params.guid, req.bc_options);
@@ -74,10 +80,14 @@ function parseOptions() {
       to        : _q.to       || _b.to,
       from      : _q.from     || _b.from,
       note      : _q.note     || _b.note,
+      recipients: _q.recipients || _b.recipients,
       second_password : _q.second_password || _b.second_password,
-      amount    : parseInt(_q.amount  || _b.amount),
-      fee       : parseInt(_q.fee     || _b.fee),
+      amount    : parseInt(_q.amount  || _b.amount) || undefined,
+      fee       : parseInt(_q.fee     || _b.fee) || undefined,
     };
+    Object.keys(req.bc_options).forEach(function (p) {
+      if (req.bc_options[p] === undefined) delete req.bc_options[p];
+    });
     next();
   };
 }

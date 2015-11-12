@@ -64,6 +64,30 @@ Query Parameters:
 
 Note: the `from` field is not required on the hosted API, in this service it is required.
 
+### Send to Many
+
+Endpoint: `/:guid/sendmany`
+
+Query Parameters:
+
+  * `recipients` - a *URI encoded* json object, with bitcoin addresses as keys and the **satoshi** amounts as values (required, see example below)
+  * `from` - bitcoin address to send from (required)
+  * `second_password` - second wallet password (required, only if second password is enabled)
+  * `fee` - specify transaction fee **in satoshi** (optional, otherwise fee is computed)
+  * `note` - public note to include with the transaction (optional, limit 255 characters)
+
+URI Encoding a JSON object in JavaScript:
+
+```js
+var myObject = { address1: 10000, address2: 50000 };
+var myJSONString = JSON.stringify(myObject);
+// `encodeURIComponent` is a global function
+var myURIEncodedJSONString = encodeURIComponent(myJSONString);
+// use `myURIEncodedJSONString` as the `recipients` parameter
+```
+
+Note: the `from` field is not required on the hosted API, in this service it is required.
+
 ### Fetch Wallet Balance
 
 Endpoint: `/:guid/balance`

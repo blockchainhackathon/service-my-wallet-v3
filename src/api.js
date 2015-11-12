@@ -8,6 +8,7 @@ module.exports = {
   getBalance        : getBalance,
   listAddresses     : listAddresses,
   getAddressBalance : getAddressBalance,
+  sendMany          : sendMany,
   makePayment       : makePayment
 };
 
@@ -50,6 +51,23 @@ function getAddressBalance(guid, options) {
     var addr = wallet.key(options.address);
     return { balance: addr.balance, address: addr.address, total_received: addr.totalReceived };
   });
+}
+
+function sendMany(guid, options) {
+  var recipients = JSON.parse(options.recipients);
+  if ('object' !== typeof recipients)
+    return q.reject('ERR_ADDR_AMT');
+
+  options.amount  = [];
+  options.to      = [];
+
+  Object.keys(recipients).forEach(function (r) {
+    options.to.push(r);
+    options.amount.push(recipients[r]);
+  });
+
+  delete options.recipients;
+  return makePayment(guid, options);
 }
 
 function makePayment(guid, options) {
