@@ -13,6 +13,7 @@ module.exports = {
   ERR_TX_LIMIT  : 'Wallets are currently restricted to 5000 transactions',
   ERR_WALLET_ID : 'Wallet identifier not found',
   ERR_UNKNOWN   : 'Uknown method',
+  ERR_ACCESS    : 'Api access is disabled. Enable it in Account Settings',
   // Custom error messages
   ERR_PARAM     : 'Missing one or more query parameters',
   ERR_HISTORY   : 'Experienced an error while fetching wallet history',

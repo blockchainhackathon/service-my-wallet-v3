@@ -51,6 +51,11 @@ merchantAPI.all('/:guid/payment', required(reqsPayment), function (req, res) {
   handleResponse(apiAction, res);
 });
 
+merchantAPI.all('/:guid/new_address', function (req, res) {
+  var apiAction = api.generateAddress(req.params.guid, req.bc_options);
+  handleResponse(apiAction, res);
+});
+
 // Helper functions
 function handleResponse(apiAction, res) {
   apiAction
