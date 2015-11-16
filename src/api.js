@@ -92,30 +92,13 @@ function makePayment(guid, options) {
 }
 
 function generateAddress(guid, options) {
-  // temp solution: just make the normal api call...
   return getWallet().then(function (wallet) {
-    var requestOptions = {
-      method  : 'GET',
-      json    : true,
-      url : 'https://blockchain.info/merchant/' + wallet.guid + '/new_address',
-      qs  : {
-        'password'  : options.password,
-        'second_password' : options.second_password,
-        'label'     : options.label,
-        'json'      : true
-      }
-    };
-    return request(requestOptions)
-      .then(function (r) {
-        if (r.error) throw r.error;
-        return r;
-      })
-      .then(login.bind(null, guid, options))
-      .catch(function (e) {
-        console.log(e);
-        throw 'ERR_ACCESS';
-      });
-    // wallet.newLegacyAddress(options.label, password, deferred.resolve, deferred.reject);
+    console.log(options.label);
+    var deferred = q.defer()
+      , password = options.second_password
+      , a = wallet.newLegacyAddress(options.label, password, success, deferred.reject);
+    return deferred.promise;
+    function success () { deferred.resolve({ address: a.address, label: a.label }); }
   });
 }
 

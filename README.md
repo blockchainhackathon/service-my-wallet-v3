@@ -106,6 +106,14 @@ Note: unlike the hosted API, there is no option of a `confirmations` parameter f
 
 Endpoint: `/:guid/list`
 
+### Generate Address
+
+Endpoint: `/:guid/new_address`
+
+Query Parameters:
+
+  * `label` - label to give to the address (optional)
+
 ## CLI
 
 When service-my-wallet-v3 is installed globally, it can be accessed via the `wallet-service` command.

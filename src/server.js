@@ -85,6 +85,7 @@ function parseOptions() {
       to        : _q.to       || _b.to,
       from      : _q.from     || _b.from,
       note      : _q.note     || _b.note,
+      label     : _q.label    || _b.label,
       recipients: _q.recipients || _b.recipients,
       second_password : _q.second_password || _b.second_password,
       amount    : parseInt(_q.amount  || _b.amount) || undefined,
