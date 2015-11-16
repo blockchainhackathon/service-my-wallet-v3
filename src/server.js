@@ -112,6 +112,7 @@ function parseOptions() {
       second_password : _q.second_password || _b.second_password,
       amount    : parseInt(_q.amount  || _b.amount) || undefined,
       fee       : parseInt(_q.fee     || _b.fee) || undefined,
+      unsafe    : Boolean(_q.unsafe) || Boolean(_b.unsafe)
     };
     Object.keys(req.bc_options).forEach(function (p) {
       if (req.bc_options[p] === undefined) delete req.bc_options[p];

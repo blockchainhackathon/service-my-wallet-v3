@@ -1,6 +1,6 @@
 'use strict';
 
-var bc;
+var bc, validatePassword;
 var q       = require('q')
   , request = require('request-promise');
 
@@ -19,6 +19,7 @@ function login(guid, options) {
     , needs2FA  = deferred.reject.bind(null, 'ERR_2FA')
     , error     = deferred.reject.bind(null, 'ERR_DECRYPT');
   function success() {
+    if (!options.unsafe) validatePassword = function (p) { return p === options.password; };
     var resolve = deferred.resolve.bind(null, { guid: guid, success: true })
       , reject  = deferred.reject.bind(null, 'ERR_HISTORY');
     bc.WalletStore.setAPICode(options.api_code);
@@ -33,13 +34,13 @@ function login(guid, options) {
 }
 
 function getBalance(guid, options) {
-  return getWallet().then(function (wallet) {
+  return getWallet(guid, options).then(function (wallet) {
     return { balance: wallet.finalBalance };
   });
 }
 
 function listAddresses(guid, options) {
-  return getWallet().then(function (wallet) {
+  return getWallet(guid, options).then(function (wallet) {
     var addresses = wallet.keys.map(addressFactory);
     return { addresses: addresses };
   });
@@ -49,7 +50,7 @@ function listAddresses(guid, options) {
 }
 
 function getAddressBalance(guid, options) {
-  return getWallet().then(function (wallet) {
+  return getWallet(guid, options).then(function (wallet) {
     var addr = wallet.key(options.address);
     return { balance: addr.balance, address: addr.address, total_received: addr.totalReceived };
   });
@@ -73,7 +74,7 @@ function sendMany(guid, options) {
 }
 
 function makePayment(guid, options) {
-  return getWallet().then(function (wallet) {
+  return getWallet(guid, options).then(function (wallet) {
     var payment = new bc.Payment()
       .to(options.to)
       .amount(options.amount)
@@ -92,7 +93,7 @@ function makePayment(guid, options) {
 }
 
 function generateAddress(guid, options) {
-  return getWallet().then(function (wallet) {
+  return getWallet(guid, options).then(function (wallet) {
     console.log(options.label);
     var deferred = q.defer()
       , password = options.second_password
@@ -109,10 +110,13 @@ function refreshCache() {
       delete require.cache[module];
     });
   }
+  validatePassword = function () { return true; };
   bc = require('blockchain-wallet-client');
 }
 
-function getWallet() {
-  var exists = bc && bc.MyWallet && bc.MyWallet.wallet;
-  return exists ? q(bc.MyWallet.wallet) : q.reject('ERR_WALLET_ID');
+function getWallet(guid, options) {
+  var exists  = bc && bc.MyWallet && bc.MyWallet.wallet
+    , valid   = validatePassword(options.password)
+    , err     = !exists && 'ERR_WALLET_ID' || !valid && 'ERR_DECRYPT';
+  return err ? q.reject(err) : q(bc.MyWallet.wallet);
 }

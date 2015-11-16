@@ -48,6 +48,9 @@ Query Parameters:
 
   * `password` - main wallet password (required)
   * `api_code` - blockchain.info wallet api code
+  * `unsafe` - if set to true, future api calls for this wallet will not require a main password
+
+Note: at the moment, only one wallet can be "logged into" at a time. To make api calls to different wallets, run separate instances of this service for each wallet, or just remember to call `/login` each time you want to switch wallets.
 
 ### Make Payment
 
@@ -59,6 +62,7 @@ Query Parameters:
   * `from` - bitcoin address to send from (required)
   * `amount` - amount **IN SATOSHI** to send (required)
   * `second_password` - second wallet password (required, only if second password is enabled)
+  * `password` - main wallet password (required, unless `unsafe` was set to `true`)
   * `fee` - specify transaction fee **IN SATOSHI** (optional, otherwise fee is computed)
   * `note` - public note to include with the transaction (optional, limit 255 characters)
 
@@ -73,6 +77,7 @@ Query Parameters:
   * `recipients` - a *URI encoded* json object, with bitcoin addresses as keys and the **satoshi** amounts as values (required, see example below)
   * `from` - bitcoin address to send from (required)
   * `second_password` - second wallet password (required, only if second password is enabled)
+  * `password` - main wallet password (required, unless `unsafe` was set to `true`)
   * `fee` - specify transaction fee **in satoshi** (optional, otherwise fee is computed)
   * `note` - public note to include with the transaction (optional, limit 255 characters)
 
@@ -92,6 +97,10 @@ Note: the `from` field is not required on the hosted API, in this service it is 
 
 Endpoint: `/:guid/balance`
 
+Query Parameters:
+
+  * `password` - main wallet password (required, unless `unsafe` was set to `true`)
+
 ### Fetch Address Balance
 
 Endpoint: `/:guid/address_balance`
@@ -99,12 +108,17 @@ Endpoint: `/:guid/address_balance`
 Query Parameters:
 
   * `address` - address to fetch balance for (required)
+  * `password` - main wallet password (required, unless `unsafe` was set to `true`)
 
 Note: unlike the hosted API, there is no option of a `confirmations` parameter for specifying minimum confirmations.
 
 ### List Addresses
 
 Endpoint: `/:guid/list`
+
+Query Parameters:
+
+  * `password` - main wallet password (required, unless `unsafe` was set to `true`)
 
 ### Generate Address
 
@@ -113,6 +127,7 @@ Endpoint: `/:guid/new_address`
 Query Parameters:
 
   * `label` - label to give to the address (optional)
+  * `password` - main wallet password (required, unless `unsafe` was set to `true`)
 
 ## CLI
 
