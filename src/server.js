@@ -19,42 +19,44 @@ merchantAPI.use(bodyParser.json());
 merchantAPI.use(parseOptions());
 
 // Routing
-merchantAPI.all('/:guid/login', required('password'), function (req, res) {
-  var apiAction = api.login(req.params.guid, req.bc_options);
-  handleResponse(apiAction, res);
-});
+merchantAPI.all(
+  '/:guid/login',
+  required('password'),
+  callApi('login')
+);
 
-merchantAPI.all('/:guid/balance', function (req, res) {
-  var apiAction = api.getBalance(req.params.guid, req.bc_options);
-  handleResponse(apiAction, res);
-});
+merchantAPI.all(
+  '/:guid/balance',
+  callApi('getBalance')
+);
 
-merchantAPI.all('/:guid/list', function (req, res) {
-  var apiAction = api.listAddresses(req.params.guid, req.bc_options);
-  handleResponse(apiAction, res);
-});
+merchantAPI.all(
+  '/:guid/list',
+  callApi('listAddresses')
+);
 
-merchantAPI.all('/:guid/address_balance', required('address'), function (req, res) {
-  var apiAction = api.getAddressBalance(req.params.guid, req.bc_options);
-  handleResponse(apiAction, res);
-});
+merchantAPI.all(
+  '/:guid/address_balance',
+  required('address'),
+  callApi('getAddressBalance')
+);
 
-var reqsSendMany = ['recipients', 'from'];
-merchantAPI.all('/:guid/sendmany', required(reqsSendMany), function (req, res) {
-  var apiAction = api.sendMany(req.params.guid, req.bc_options);
-  handleResponse(apiAction, res);
-});
+merchantAPI.all(
+  '/:guid/sendmany',
+  required(['recipients', 'from']),
+  callApi('sendMany')
+);
 
-var reqsPayment = ['to', 'amount', 'from'];
-merchantAPI.all('/:guid/payment', required(reqsPayment), function (req, res) {
-  var apiAction = api.makePayment(req.params.guid, req.bc_options);
-  handleResponse(apiAction, res);
-});
+merchantAPI.all(
+  '/:guid/payment',
+  required(['to', 'amount', 'from']),
+  callApi('makePayment')
+);
 
-merchantAPI.all('/:guid/new_address', function (req, res) {
-  var apiAction = api.generateAddress(req.params.guid, req.bc_options);
-  handleResponse(apiAction, res);
-});
+merchantAPI.all(
+  '/:guid/new_address',
+  callApi('generateAddress')
+);
 
 // Helper functions
 function handleResponse(apiAction, res) {
@@ -74,6 +76,26 @@ function start(options) {
 }
 
 // Custom middleware
+function callApi(method) {
+  return function (req, res) {
+    var apiAction = api[method](req.params.guid, req.bc_options);
+    handleResponse(apiAction, res);
+  };
+}
+
+function required(props) {
+  props = props instanceof Array ? props : [props];
+  return function (req, res, next) {
+    var rejection = q.reject('ERR_PARAM');
+    for (var i = 0; i < props.length; i++) {
+      var prop = props[i];
+      var propExists = req.bc_options[prop] != null;
+      if (!propExists) return handleResponse(rejection, res);
+    }
+    next();
+  };
+}
+
 function parseOptions() {
   return function (req, res, next) {
     var _q = req.query
@@ -94,19 +116,6 @@ function parseOptions() {
     Object.keys(req.bc_options).forEach(function (p) {
       if (req.bc_options[p] === undefined) delete req.bc_options[p];
     });
-    next();
-  };
-}
-
-function required(props) {
-  props = props instanceof Array ? props : [props];
-  return function (req, res, next) {
-    var rejection = q.reject('ERR_PARAM');
-    for (var i = 0; i < props.length; i++) {
-      var prop = props[i];
-      var propExists = req.bc_options[prop] != null;
-      if (!propExists) return handleResponse(rejection, res);
-    }
     next();
   };
 }
